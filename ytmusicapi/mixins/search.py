@@ -142,6 +142,7 @@ class SearchMixin(MixinProtocol):
         return search_results
 
     def get_search_suggestions(self, query: str, detailed_runs: bool = False) -> list[str] | JsonList:
+        pass
         """
         Get Search Suggestions
 
