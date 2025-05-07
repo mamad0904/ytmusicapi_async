@@ -61,7 +61,7 @@ class SearchMixin(MixinProtocol):
         params = get_search_params(filter, scope, ignore_spelling)
         if params:
             body["params"] = params
-        print(perf_counter() - s)
+        print("first: ", perf_counter() - s)
         response = await self._send_request_async(session, proxy, endpoint, body)
         s = perf_counter()
         # no results
@@ -123,23 +123,23 @@ class SearchMixin(MixinProtocol):
                 parse_search_results(shelf_contents, api_search_result_types, result_type, category)
             )
 
-            # if filter:  # if filter is set, there are continuations
-            #     request_func: RequestFuncType = lambda additionalParams: self._send_request(
-            #         endpoint, body, additionalParams
-            #     )
-            #     parse_func: ParseFuncType = lambda contents: parse_search_results(
-            #         contents, api_search_result_types, result_type, category
-            #     )
-            #
-            #     search_results.extend(
-            #         get_continuations(
-            #             res["musicShelfRenderer"],
-            #             "musicShelfContinuation",
-            #             limit - len(search_results),
-            #             request_func,
-            #             parse_func,
-            #         )
-            #     )
+            if filter:  # if filter is set, there are continuations
+                request_func: RequestFuncType = lambda additionalParams: self._send_request(
+                    endpoint, body, additionalParams
+                )
+                parse_func: ParseFuncType = lambda contents: parse_search_results(
+                    contents, api_search_result_types, result_type, category
+                )
+
+                search_results.extend(
+                    get_continuations(
+                        res["musicShelfRenderer"],
+                        "musicShelfContinuation",
+                        limit - len(search_results),
+                        request_func,
+                        parse_func,
+                    )
+                )
         print(perf_counter() - s)
         return search_results
 
