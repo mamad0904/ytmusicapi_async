@@ -247,7 +247,6 @@ class YTMusicBase:
             proxy=proxy,
             json=body,
             headers=self.headers,
-            proxies=self.proxies,
             cookies=self.cookies,
         ) as response:
             if response.status_code >= 400:
