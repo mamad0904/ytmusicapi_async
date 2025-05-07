@@ -13,6 +13,7 @@ from typing import Any
 import requests
 from requests import Response
 from requests.structures import CaseInsensitiveDict
+import asyncio
 
 from ytmusicapi.helpers import (
     SUPPORTED_LANGUAGES,
@@ -240,6 +241,10 @@ class YTMusicBase:
             raise YTMusicServerError(message + error)
         return response_text
 
+
+    def decode_and_parse(self, response):
+        return json.loads(response.decode())
+
     async def _send_request_async(self, session, proxy, endpoint: str, body: JsonDict, additionalParams: str = "") -> JsonDict:
         body.update(self.context)
         async with session.post(
@@ -249,11 +254,8 @@ class YTMusicBase:
             headers=self.headers,
             cookies=self.cookies,
         ) as response:
-            if response.status >= 400:
-                message = "Server returned HTTP " + str(response.status_code) + ": " + response.reason + ".\n"
-                error = response_text.get("error", {}).get("message")
-                raise YTMusicServerError(message + error)
-            response_text: JsonDict = await response.json()
+            response.raise_for_status()
+            response_text: JsonDict = await asyncio.get_event_loop().run_in_executor(None, decode_and_parse, await response.read())
         return response_text
 
 
