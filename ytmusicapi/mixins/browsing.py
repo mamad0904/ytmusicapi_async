@@ -602,63 +602,23 @@ class BrowsingMixin(MixinProtocol):
         return parse_mixed_content(sections)
 
     @overload
-    def get_lyrics(self, browseId: str, timestamps: Literal[False] = False) -> Lyrics | None:
+    async def get_lyrics(self, session, browseId: str, timestamps: Literal[False] = False, proxy = None) -> Lyrics | None:
         """overload for mypy only"""
 
     @overload
-    def get_lyrics(self, browseId: str, timestamps: Literal[True] = True) -> Lyrics | TimedLyrics | None:
+    async def get_lyrics(self, session, browseId: str, timestamps: Literal[True] = True, proxy = None) -> Lyrics | TimedLyrics | None:
         """overload for mypy only"""
 
-    def get_lyrics(self, browseId: str, timestamps: bool | None = False) -> Lyrics | TimedLyrics | None:
-        """
-        Returns lyrics of a song or video. When `timestamps` is set, lyrics are returned with
-        timestamps, if available.
-
-        :param browseId: Lyrics browseId obtained from :py:func:`get_watch_playlist` (startswith ``MPLYt...``).
-        :param timestamps: Optional. Whether to return bare lyrics or lyrics with timestamps, if available. (Default: `False`)
-        :return: Dictionary with song lyrics or ``None``, if no lyrics are found.
-            The ``hasTimestamps``-key determines the format of the data.
-
-
-            Example when `timestamps=False`, or no timestamps are available::
-
-                {
-                    "lyrics": "Today is gonna be the day\\nThat they're gonna throw it back to you\\n",
-                    "source": "Source: LyricFind",
-                    "hasTimestamps": False
-                }
-
-            Example when `timestamps` is set to `True` and timestamps are available::
-
-                {
-                    "lyrics": [
-                        LyricLine(
-                            text="I was a liar",
-                            start_time=9200,
-                            end_time=10630,
-                            id=1
-                        ),
-                        LyricLine(
-                            text="I gave in to the fire",
-                            start_time=10680,
-                            end_time=12540,
-                            id=2
-                        ),
-                    ],
-                    "source": "Source: LyricFind",
-                    "hasTimestamps": True
-                }
-
-        """
+    async def get_lyrics(self, session, browseId: str, timestamps: bool | None = False, proxy = None) -> Lyrics | TimedLyrics | None:
         if not browseId:
             raise YTMusicUserError("Invalid browseId provided. This song might not have lyrics.")
 
         if timestamps:
             # changes and restores the client to get lyrics with timestamps (mobile only)
             with self.as_mobile():
-                response = self._send_request("browse", {"browseId": browseId})
+                response = await self._send_request_async(session, proxy, "browse", {"browseId": browseId})
         else:
-            response = self._send_request("browse", {"browseId": browseId})
+            response = await self._send_request_async(session, proxy,"browse", {"browseId": browseId})
 
         # unpack the response
         lyrics: Lyrics | TimedLyrics
