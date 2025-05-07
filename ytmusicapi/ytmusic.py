@@ -266,7 +266,6 @@ class YTMusicBase:
         response = self._session.get(
             url,
             params=params,
-            # handle first-use x-goog-visitor-id fetching
             headers=initialize_headers() if use_base_headers else self.headers,
             proxies=self.proxies,
             cookies=self.cookies,
