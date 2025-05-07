@@ -81,8 +81,8 @@ class WatchMixin(MixinProtocol):
         )
         tracks = parse_watch_playlist(results["contents"])
 
-        if "continuations" in results:
-            print("has continuations")
+        # if "continuations" in results:
+        #     print("has continuations")
             # request_func: RequestFuncType = lambda additionalParams: self._send_request(
             #     endpoint, body, additionalParams
             # )
