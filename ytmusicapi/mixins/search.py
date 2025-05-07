@@ -6,134 +6,15 @@ from ytmusicapi.type_alias import JsonList, ParseFuncType, RequestFuncType
 
 
 class SearchMixin(MixinProtocol):
-    def search(
+    async def search(
         self,
+        session:aiohttp.CLientsession,
         query: str,
         filter: str | None = None,
         scope: str | None = None,
         limit: int = 20,
         ignore_spelling: bool = False,
     ) -> JsonList:
-        """
-        Search YouTube music
-        Returns results within the provided category.
-
-        :param query: Query string, i.e. 'Oasis Wonderwall'
-        :param filter: Filter for item types. Allowed values: ``songs``, ``videos``, ``albums``, ``artists``, ``playlists``, ``community_playlists``, ``featured_playlists``, ``uploads``.
-          Default: Default search, including all types of items.
-        :param scope: Search scope. Allowed values: ``library``, ``uploads``.
-            Default: Search the public YouTube Music catalogue.
-            Changing scope from the default will reduce the number of settable filters. Setting a filter that is not permitted will throw an exception.
-            For uploads, no filter can be set.
-            For library, community_playlists and featured_playlists filter cannot be set.
-        :param limit: Number of search results to return
-          Default: 20
-        :param ignore_spelling: Whether to ignore YTM spelling suggestions.
-          If True, the exact search term will be searched for, and will not be corrected.
-          This does not have any effect when the filter is set to ``uploads``.
-          Default: False, will use YTM's default behavior of autocorrecting the search.
-        :return: List of results depending on filter.
-          resultType specifies the type of item (important for default search).
-          albums, artists and playlists additionally contain a browseId, corresponding to
-          albumId, channelId and playlistId (browseId=`VL`+playlistId)
-
-          Example list for default search with one result per resultType for brevity. Normally
-          there are 3 results per resultType and an additional ``thumbnails`` key::
-
-            [
-              {
-                "category": "Top result",
-                "resultType": "video",
-                "videoId": "vU05Eksc_iM",
-                "title": "Wonderwall",
-                "artists": [
-                  {
-                    "name": "Oasis",
-                    "id": "UCmMUZbaYdNH0bEd1PAlAqsA"
-                  }
-                ],
-                "views": "1.4M",
-                "videoType": "MUSIC_VIDEO_TYPE_OMV",
-                "duration": "4:38",
-                "duration_seconds": 278
-              },
-              {
-                "category": "Songs",
-                "resultType": "song",
-                "videoId": "ZrOKjDZOtkA",
-                "title": "Wonderwall",
-                "artists": [
-                  {
-                    "name": "Oasis",
-                    "id": "UCmMUZbaYdNH0bEd1PAlAqsA"
-                  }
-                ],
-                "album": {
-                  "name": "(What's The Story) Morning Glory? (Remastered)",
-                  "id": "MPREb_9nqEki4ZDpp"
-                },
-                "duration": "4:19",
-                "duration_seconds": 259
-                "isExplicit": false,
-                "feedbackTokens": {
-                  "add": null,
-                  "remove": null
-                }
-              },
-              {
-                "category": "Albums",
-                "resultType": "album",
-                "browseId": "MPREb_IInSY5QXXrW",
-                "playlistId": "OLAK5uy_kunInnOpcKECWIBQGB0Qj6ZjquxDvfckg",
-                "title": "(What's The Story) Morning Glory?",
-                "type": "Album",
-                "artist": "Oasis",
-                "year": "1995",
-                "isExplicit": false
-              },
-              {
-                "category": "Community playlists",
-                "resultType": "playlist",
-                "browseId": "VLPLK1PkWQlWtnNfovRdGWpKffO1Wdi2kvDx",
-                "title": "Wonderwall - Oasis",
-                "author": "Tate Henderson",
-                "itemCount": "174"
-              },
-              {
-                "category": "Videos",
-                "resultType": "video",
-                "videoId": "bx1Bh8ZvH84",
-                "title": "Wonderwall",
-                "artists": [
-                  {
-                    "name": "Oasis",
-                    "id": "UCmMUZbaYdNH0bEd1PAlAqsA"
-                  }
-                ],
-                "views": "386M",
-                "duration": "4:38",
-                "duration_seconds": 278
-              },
-              {
-                "category": "Artists",
-                "resultType": "artist",
-                "browseId": "UCmMUZbaYdNH0bEd1PAlAqsA",
-                "artist": "Oasis",
-                "shuffleId": "RDAOkjHYJjL1a3xspEyVkhHAsg",
-                "radioId": "RDEMkjHYJjL1a3xspEyVkhHAsg"
-              },
-              {
-                "category": "Profiles",
-                "resultType": "profile",
-                "title": "Taylor Swift Time",
-                "name": "@TaylorSwiftTime",
-                "browseId": "UCSCRK7XlVQ6fBdEl00kX6pQ",
-                "thumbnails": ...
-              }
-            ]
-
-
-        """
         body = {"query": query}
         endpoint = "search"
         search_results: JsonList = []
@@ -179,7 +60,7 @@ class SearchMixin(MixinProtocol):
         if params:
             body["params"] = params
 
-        response = self._send_request(endpoint, body)
+        response = await self._send_request_async(session, endpoint, body)
 
         # no results
         if "contents" not in response:
@@ -240,23 +121,23 @@ class SearchMixin(MixinProtocol):
                 parse_search_results(shelf_contents, api_search_result_types, result_type, category)
             )
 
-            if filter:  # if filter is set, there are continuations
-                request_func: RequestFuncType = lambda additionalParams: self._send_request(
-                    endpoint, body, additionalParams
-                )
-                parse_func: ParseFuncType = lambda contents: parse_search_results(
-                    contents, api_search_result_types, result_type, category
-                )
-
-                search_results.extend(
-                    get_continuations(
-                        res["musicShelfRenderer"],
-                        "musicShelfContinuation",
-                        limit - len(search_results),
-                        request_func,
-                        parse_func,
-                    )
-                )
+            # if filter:  # if filter is set, there are continuations
+            #     request_func: RequestFuncType = lambda additionalParams: self._send_request(
+            #         endpoint, body, additionalParams
+            #     )
+            #     parse_func: ParseFuncType = lambda contents: parse_search_results(
+            #         contents, api_search_result_types, result_type, category
+            #     )
+            #
+            #     search_results.extend(
+            #         get_continuations(
+            #             res["musicShelfRenderer"],
+            #             "musicShelfContinuation",
+            #             limit - len(search_results),
+            #             request_func,
+            #             parse_func,
+            #         )
+            #     )
 
         return search_results
 

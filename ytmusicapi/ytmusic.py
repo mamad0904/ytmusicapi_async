@@ -240,6 +240,24 @@ class YTMusicBase:
             raise YTMusicServerError(message + error)
         return response_text
 
+    async def _send_request_async(self, session, endpoint: str, body: JsonDict, additionalParams: str = "") -> JsonDict:
+        body.update(self.context)
+        async with session.post(
+            YTM_BASE_API + endpoint + self.params + additionalParams,
+            json=body,
+            headers=self.headers,
+            proxies=self.proxies,
+            cookies=self.cookies,
+        ) as response:
+            if response.status_code >= 400:
+                message = "Server returned HTTP " + str(response.status_code) + ": " + response.reason + ".\n"
+                error = response_text.get("error", {}).get("message")
+                raise YTMusicServerError(message + error)
+            response_text: JsonDict = await response.json()
+        return response_text
+
+
+
     def _send_get_request(
         self, url: str, params: JsonDict | None = None, use_base_headers: bool = False
     ) -> Response:

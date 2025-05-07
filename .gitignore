@@ -14,5 +14,6 @@ build
 dist
 .pdm-python
 .venv
+.env
 *.log
 *.xml
