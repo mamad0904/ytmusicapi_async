@@ -249,7 +249,7 @@ class YTMusicBase:
             headers=self.headers,
             cookies=self.cookies,
         ) as response:
-            if response.status_code >= 400:
+            if response.status >= 400:
                 message = "Server returned HTTP " + str(response.status_code) + ": " + response.reason + ".\n"
                 error = response_text.get("error", {}).get("message")
                 raise YTMusicServerError(message + error)
