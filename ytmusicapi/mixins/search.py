@@ -3,7 +3,7 @@ from ytmusicapi.exceptions import YTMusicUserError
 from ytmusicapi.mixins._protocol import MixinProtocol
 from ytmusicapi.parsers.search import *
 from ytmusicapi.type_alias import JsonList, ParseFuncType, RequestFuncType
-
+from time import perf_counter
 
 class SearchMixin(MixinProtocol):
     async def search(
@@ -16,6 +16,7 @@ class SearchMixin(MixinProtocol):
         limit: int = 20,
         ignore_spelling: bool = False,
     ) -> JsonList:
+        s = perf_counter()
         body = {"query": query}
         endpoint = "search"
         search_results: JsonList = []
@@ -60,9 +61,9 @@ class SearchMixin(MixinProtocol):
         params = get_search_params(filter, scope, ignore_spelling)
         if params:
             body["params"] = params
-
+        print(perf_counter() - s)
         response = await self._send_request_async(session, proxy, endpoint, body)
-
+        s = perf_counter()
         # no results
         if "contents" not in response:
             return search_results
@@ -139,7 +140,7 @@ class SearchMixin(MixinProtocol):
             #             parse_func,
             #         )
             #     )
-
+        print(perf_counter() - s)
         return search_results
 
     def get_search_suggestions(self, query: str, detailed_runs: bool = False) -> list[str] | JsonList:
