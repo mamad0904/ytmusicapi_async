@@ -576,23 +576,8 @@ class BrowsingMixin(MixinProtocol):
 
         return album
 
-    def get_song(self, videoId: str, signatureTimestamp: int | None = None) -> JsonDict:
-        endpoint = "player"
-        if not signatureTimestamp:
-            signatureTimestamp = get_datestamp() - 1
 
-        params = {
-            "playbackContext": {"contentPlaybackContext": {"signatureTimestamp": signatureTimestamp}},
-            "video_id": videoId,
-        }
-        response = self._send_request(endpoint, params)
-        keys = ["videoDetails", "playabilityStatus", "streamingData", "microformat", "playbackTracking"]
-        for k in list(response.keys()):
-            if k not in keys:
-                del response[k]
-        return response
-
-    async def get_song_async(self, session, videoId: str, signatureTimestamp: int | None = None, proxy = None) -> JsonDict:
+    async def get_song(self, session, videoId: str, signatureTimestamp: int | None = None, proxy = None) -> JsonDict:
         endpoint = "player"
         if not signatureTimestamp:
             signatureTimestamp = get_datestamp() - 1
