@@ -9,8 +9,8 @@ class SearchMixin(MixinProtocol):
     async def search(
         self,
         session:aiohttp.CLientsession,
-        proxy=None,
         query: str,
+        proxy=None,
         filter: str | None = None,
         scope: str | None = None,
         limit: int = 20,
