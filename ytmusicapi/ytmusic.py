@@ -240,10 +240,11 @@ class YTMusicBase:
             raise YTMusicServerError(message + error)
         return response_text
 
-    async def _send_request_async(self, session, endpoint: str, body: JsonDict, additionalParams: str = "") -> JsonDict:
+    async def _send_request_async(self, session, proxy, endpoint: str, body: JsonDict, additionalParams: str = "") -> JsonDict:
         body.update(self.context)
         async with session.post(
             YTM_BASE_API + endpoint + self.params + additionalParams,
+            proxy=proxy,
             json=body,
             headers=self.headers,
             proxies=self.proxies,

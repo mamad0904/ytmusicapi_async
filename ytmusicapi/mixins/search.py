@@ -60,7 +60,7 @@ class SearchMixin(MixinProtocol):
         if params:
             body["params"] = params
 
-        response = await self._send_request_async(session, endpoint, body)
+        response = await self._send_request_async(session, proxy, endpoint, body)
 
         # no results
         if "contents" not in response:
@@ -142,78 +142,6 @@ class SearchMixin(MixinProtocol):
         return search_results
 
     def get_search_suggestions(self, query: str, detailed_runs: bool = False) -> list[str] | JsonList:
-        """
-        Get Search Suggestions
-
-        :param query: Query string, i.e. 'faded'
-        :param detailed_runs: Whether to return detailed runs of each suggestion.
-            If True, it returns the query that the user typed and the remaining
-            suggestion along with the complete text (like many search services
-            usually bold the text typed by the user).
-            Default: False, returns the list of search suggestions in plain text.
-        :return: A list of search suggestions. If ``detailed_runs`` is False, it returns plain text suggestions.
-              If ``detailed_runs`` is True, it returns a list of dictionaries with detailed information.
-
-          Example response when ``query`` is 'fade' and ``detailed_runs`` is set to ``False``::
-
-              [
-                "faded",
-                "faded alan walker lyrics",
-                "faded alan walker",
-                "faded remix",
-                "faded song",
-                "faded lyrics",
-                "faded instrumental"
-              ]
-
-          Example response when ``detailed_runs`` is set to ``True``::
-
-              [
-                {
-                  "text": "faded",
-                  "runs": [
-                    {
-                      "text": "fade",
-                      "bold": true
-                    },
-                    {
-                      "text": "d"
-                    }
-                  ],
-                  "fromHistory": true,
-                  "feedbackToken": "AEEJK..."
-                },
-                {
-                  "text": "faded alan walker lyrics",
-                  "runs": [
-                    {
-                      "text": "fade",
-                      "bold": true
-                    },
-                    {
-                      "text": "d alan walker lyrics"
-                    }
-                  ],
-                  "fromHistory": false,
-                  "feedbackToken": None
-                },
-                {
-                  "text": "faded alan walker",
-                  "runs": [
-                    {
-                      "text": "fade",
-                      "bold": true
-                    },
-                    {
-                      "text": "d alan walker"
-                    }
-                  ],
-                  "fromHistory": false,
-                  "feedbackToken": None
-                },
-                ...
-              ]
-        """
         body = {"input": query}
         endpoint = "music/get_search_suggestions"
 
@@ -222,24 +150,6 @@ class SearchMixin(MixinProtocol):
         return parse_search_suggestions(response, detailed_runs)
 
     def remove_search_suggestions(self, suggestions: JsonList, indices: list[int] | None = None) -> bool:
-        """
-        Remove search suggestion from the user search history.
-
-        :param suggestions: The dictionary obtained from the :py:func:`get_search_suggestions`
-            (with detailed_runs=True)`
-        :param indices: Optional. The indices of the suggestions to be removed. Default: remove all suggestions.
-        :return: True if the operation was successful, False otherwise.
-
-          Example usage::
-
-              # Removing suggestion number 0
-              suggestions = ytmusic.get_search_suggestions(query="fade", detailed_runs=True)
-              success = ytmusic.remove_search_suggestions(suggestions=suggestions, indices=[0])
-              if success:
-                  print("Suggestion removed successfully")
-              else:
-                  print("Failed to remove suggestion")
-        """
         if not any(run["fromHistory"] for run in suggestions):
             raise YTMusicUserError(
                 "No search result from history provided. "
