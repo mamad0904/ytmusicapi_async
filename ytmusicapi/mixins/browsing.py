@@ -577,176 +577,6 @@ class BrowsingMixin(MixinProtocol):
         return album
 
     def get_song(self, videoId: str, signatureTimestamp: int | None = None) -> JsonDict:
-        """
-        Returns metadata and streaming information about a song or video.
-
-        :param videoId: Video id
-        :param signatureTimestamp: Provide the current YouTube signatureTimestamp.
-            If not provided a default value will be used, which might result in invalid streaming URLs
-        :return: Dictionary with song metadata.
-
-        Example::
-
-            {
-                "playabilityStatus": {
-                    "status": "OK",
-                    "playableInEmbed": true,
-                    "audioOnlyPlayability": {
-                        "audioOnlyPlayabilityRenderer": {
-                            "trackingParams": "CAEQx2kiEwiuv9X5i5H1AhWBvlUKHRoZAHk=",
-                            "audioOnlyAvailability": "FEATURE_AVAILABILITY_ALLOWED"
-                        }
-                    },
-                    "miniplayer": {
-                        "miniplayerRenderer": {
-                            "playbackMode": "PLAYBACK_MODE_ALLOW"
-                        }
-                    },
-                    "contextParams": "Q0FBU0FnZ0M="
-                },
-                "streamingData": {
-                    "expiresInSeconds": "21540",
-                    "adaptiveFormats": [
-                        {
-                            "itag": 140,
-                            "url": "https://rr1---sn-h0jelnez.c.youtube.com/videoplayback?expire=1641080272...",
-                            "mimeType": "audio/mp4; codecs=\"mp4a.40.2\"",
-                            "bitrate": 131007,
-                            "initRange": {
-                                "start": "0",
-                                "end": "667"
-                            },
-                            "indexRange": {
-                                "start": "668",
-                                "end": "999"
-                            },
-                            "lastModified": "1620321966927796",
-                            "contentLength": "3967382",
-                            "quality": "tiny",
-                            "projectionType": "RECTANGULAR",
-                            "averageBitrate": 129547,
-                            "highReplication": true,
-                            "audioQuality": "AUDIO_QUALITY_MEDIUM",
-                            "approxDurationMs": "245000",
-                            "audioSampleRate": "44100",
-                            "audioChannels": 2,
-                            "loudnessDb": -1.3000002
-                        }
-                    ]
-                },
-                "playbackTracking": {
-                    "videostatsPlaybackUrl": {
-                      "baseUrl": "https://s.youtube.com/api/stats/playback?cl=491307275&docid=AjXQiKP5kMs&ei=Nl2HY-6MH5WE8gPjnYnoDg&fexp=1714242%2C9405963%2C23804281%2C23858057%2C23880830%2C23880833%2C23882685%2C23918597%2C23934970%2C23946420%2C23966208%2C23983296%2C23998056%2C24001373%2C24002022%2C24002025%2C24004644%2C24007246%2C24034168%2C24036947%2C24077241%2C24080738%2C24120820%2C24135310%2C24135692%2C24140247%2C24161116%2C24162919%2C24164186%2C24169501%2C24175560%2C24181174%2C24187043%2C24187377%2C24187854%2C24191629%2C24197450%2C24199724%2C24200839%2C24209349%2C24211178%2C24217535%2C24219713%2C24224266%2C24241378%2C24248091%2C24248956%2C24255543%2C24255545%2C24262346%2C24263796%2C24265426%2C24267564%2C24268142%2C24279196%2C24280220%2C24283426%2C24283493%2C24287327%2C24288045%2C24290971%2C24292955%2C24293803%2C24299747%2C24390674%2C24391018%2C24391537%2C24391709%2C24392268%2C24392363%2C24392401%2C24401557%2C24402891%2C24403794%2C24406605%2C24407200%2C24407665%2C24407914%2C24408220%2C24411766%2C24413105%2C24413820%2C24414162%2C24415866%2C24416354%2C24420756%2C24421162%2C24425861%2C24428962%2C24590921%2C39322504%2C39322574%2C39322694%2C39322707&ns=yt&plid=AAXusD4TIOMjS5N4&el=detailpage&len=246&of=Jx1iRksbq-rB9N1KSijZLQ&osid=MWU2NzBjYTI%3AAOeUNAagU8UyWDUJIki5raGHy29-60-yTA&uga=29&vm=CAEQABgEOjJBUEV3RWxUNmYzMXNMMC1MYVpCVnRZTmZWMWw1OWVZX2ZOcUtCSkphQ245VFZwOXdTQWJbQVBta0tETEpWNXI1SlNIWEJERXdHeFhXZVllNXBUemt5UHR4WWZEVzFDblFUSmdla3BKX2R0dXk3bzFORWNBZmU5YmpYZnlzb3doUE5UU0FoVGRWa0xIaXJqSWgB",
-                      "headers": [
-                        {
-                          "headerType": "USER_AUTH"
-                        },
-                        {
-                          "headerType": "VISITOR_ID"
-                        },
-                        {
-                          "headerType": "PLUS_PAGE_ID"
-                        }
-                      ]
-                    },
-                    "videostatsDelayplayUrl": {(as above)},
-                    "videostatsWatchtimeUrl": {(as above)},
-                    "ptrackingUrl": {(as above)},
-                    "qoeUrl": {(as above)},
-                    "atrUrl": {(as above)},
-                    "videostatsScheduledFlushWalltimeSeconds": [
-                      10,
-                      20,
-                      30
-                    ],
-                    "videostatsDefaultFlushIntervalSeconds": 40
-                },
-                "videoDetails": {
-                    "videoId": "AjXQiKP5kMs",
-                    "title": "Sparks",
-                    "lengthSeconds": "245",
-                    "channelId": "UCvCk2zFqkCYzpnSgWfx0qOg",
-                    "isOwnerViewing": false,
-                    "isCrawlable": false,
-                    "thumbnail": {
-                        "thumbnails": []
-                    },
-                    "allowRatings": true,
-                    "viewCount": "12",
-                    "author": "Thomas Bergersen",
-                    "isPrivate": true,
-                    "isUnpluggedCorpus": false,
-                    "musicVideoType": "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK",
-                    "isLiveContent": false
-                },
-                "microformat": {
-                    "microformatDataRenderer": {
-                        "urlCanonical": "https://music.youtube.com/watch?v=AjXQiKP5kMs",
-                        "title": "Sparks - YouTube Music",
-                        "description": "Uploaded to YouTube via YouTube Music Sparks",
-                        "thumbnail": {
-                            "thumbnails": [
-                                {
-                                    "url": "https://i.ytimg.com/vi/AjXQiKP5kMs/hqdefault.jpg",
-                                    "width": 480,
-                                    "height": 360
-                                }
-                            ]
-                        },
-                        "siteName": "YouTube Music",
-                        "appName": "YouTube Music",
-                        "androidPackage": "com.google.android.apps.youtube.music",
-                        "iosAppStoreId": "1017492454",
-                        "iosAppArguments": "https://music.youtube.com/watch?v=AjXQiKP5kMs",
-                        "ogType": "video.other",
-                        "urlApplinksIos": "vnd.youtube.music://music.youtube.com/watch?v=AjXQiKP5kMs&feature=applinks",
-                        "urlApplinksAndroid": "vnd.youtube.music://music.youtube.com/watch?v=AjXQiKP5kMs&feature=applinks",
-                        "urlTwitterIos": "vnd.youtube.music://music.youtube.com/watch?v=AjXQiKP5kMs&feature=twitter-deep-link",
-                        "urlTwitterAndroid": "vnd.youtube.music://music.youtube.com/watch?v=AjXQiKP5kMs&feature=twitter-deep-link",
-                        "twitterCardType": "player",
-                        "twitterSiteHandle": "@YouTubeMusic",
-                        "schemaDotOrgType": "http://schema.org/VideoObject",
-                        "noindex": true,
-                        "unlisted": true,
-                        "paid": false,
-                        "familySafe": true,
-                        "pageOwnerDetails": {
-                            "name": "Music Library Uploads",
-                            "externalChannelId": "UCvCk2zFqkCYzpnSgWfx0qOg",
-                            "youtubeProfileUrl": "http://www.youtube.com/channel/UCvCk2zFqkCYzpnSgWfx0qOg"
-                        },
-                        "videoDetails": {
-                            "externalVideoId": "AjXQiKP5kMs",
-                            "durationSeconds": "246",
-                            "durationIso8601": "PT4M6S"
-                        },
-                        "linkAlternates": [
-                            {
-                                "hrefUrl": "android-app://com.google.android.youtube/http/youtube.com/watch?v=AjXQiKP5kMs"
-                            },
-                            {
-                                "hrefUrl": "ios-app://544007664/http/youtube.com/watch?v=AjXQiKP5kMs"
-                            },
-                            {
-                                "hrefUrl": "https://www.youtube.com/oembed?format=json&url=https%3A%2F%2Fmusic.youtube.com%2Fwatch%3Fv%3DAjXQiKP5kMs",
-                                "title": "Sparks",
-                                "alternateType": "application/json+oembed"
-                            },
-                            {
-                                "hrefUrl": "https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fmusic.youtube.com%2Fwatch%3Fv%3DAjXQiKP5kMs",
-                                "title": "Sparks",
-                                "alternateType": "text/xml+oembed"
-                            }
-                        ],
-                        "viewCount": "12",
-                        "publishDate": "1969-12-31",
-                        "category": "Music",
-                        "uploadDate": "1969-12-31"
-                    }
-                }
-            }
-
-        """
         endpoint = "player"
         if not signatureTimestamp:
             signatureTimestamp = get_datestamp() - 1
@@ -762,80 +592,23 @@ class BrowsingMixin(MixinProtocol):
                 del response[k]
         return response
 
+    async def get_song_async(self, session, videoId: str, signatureTimestamp: int | None = None, proxy = None) -> JsonDict:
+        endpoint = "player"
+        if not signatureTimestamp:
+            signatureTimestamp = get_datestamp() - 1
+
+        params = {
+            "playbackContext": {"contentPlaybackContext": {"signatureTimestamp": signatureTimestamp}},
+            "video_id": videoId,
+        }
+        response = await self._send_request_async(session, proxy, endpoint, params)
+        keys = ["videoDetails", "playabilityStatus", "streamingData", "microformat", "playbackTracking"]
+        for k in list(response.keys()):
+            if k not in keys:
+                del response[k]
+        return response
+
     def get_song_related(self, browseId: str) -> JsonList:
-        """
-        Gets related content for a song. Equivalent to the content
-        shown in the "Related" tab of the watch panel.
-
-        :param browseId: The ``related`` key  in the ``get_watch_playlist`` response.
-
-        Example::
-
-            [
-              {
-                "title": "You might also like",
-                "contents": [
-                  {
-                    "title": "High And Dry",
-                    "videoId": "7fv84nPfTH0",
-                    "artists": [{
-                        "name": "Radiohead",
-                        "id": "UCr_iyUANcn9OX_yy9piYoLw"
-                      }],
-                    "thumbnails": [
-                      {
-                        "url": "https://lh3.googleusercontent.com/TWWT47cHLv3yAugk4h9eOzQ46FHmXc_g-KmBVy2d4sbg_F-Gv6xrPglztRVzp8D_l-yzOnvh-QToM8s=w60-h60-l90-rj",
-                        "width": 60,
-                        "height": 60
-                      }
-                    ],
-                    "isExplicit": false,
-                    "album": {
-                      "name": "The Bends",
-                      "id": "MPREb_xsmDKhqhQrG"
-                    }
-                  }
-                ]
-              },
-              {
-                "title": "Recommended playlists",
-                "contents": [
-                  {
-                    "title": "'90s Alternative Rock Hits",
-                    "playlistId": "RDCLAK5uy_m_h-nx7OCFaq9AlyXv78lG0AuloqW_NUA",
-                    "thumbnails": [...],
-                    "description": "Playlist • YouTube Music"
-                  }
-                ]
-              },
-              {
-                "title": "Similar artists",
-                "contents": [
-                  {
-                    "title": "Noel Gallagher",
-                    "browseId": "UCu7yYcX_wIZgG9azR3PqrxA",
-                    "subscribers": "302K",
-                    "thumbnails": [...]
-                  }
-                ]
-              },
-              {
-                "title": "Oasis",
-                "contents": [
-                  {
-                    "title": "Shakermaker",
-                    "year": "2014",
-                    "browseId": "MPREb_WNGQWp5czjD",
-                    "thumbnails": [...]
-                  }
-                ]
-              },
-              {
-                "title": "About the artist",
-                "contents": "Oasis were a rock band consisting of Liam Gallagher, Paul ... (full description shortened for documentation)"
-              }
-            ]
-        """
         if not browseId:
             raise YTMusicUserError("Invalid browseId provided.")
 
