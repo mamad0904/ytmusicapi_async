@@ -8,7 +8,7 @@ from ytmusicapi.type_alias import JsonList, ParseFuncType, RequestFuncType
 class SearchMixin(MixinProtocol):
     async def search(
         self,
-        session:aiohttp.CLientsession,
+        session,
         query: str,
         proxy=None,
         filter: str | None = None,
