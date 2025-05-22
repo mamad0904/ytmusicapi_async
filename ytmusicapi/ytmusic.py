@@ -10,6 +10,7 @@ from functools import cached_property, partial
 from pathlib import Path
 from typing import Any
 
+import orjson
 import requests
 from requests import Response
 from requests.structures import CaseInsensitiveDict
@@ -255,7 +256,8 @@ class YTMusicBase:
             cookies=self.cookies,
         ) as response:
             response.raise_for_status()
-            response_text: JsonDict = await asyncio.get_event_loop().run_in_executor(None, self.decode_and_parse, await response.read())
+            response_text: JsonDict = orjson.loads(await response.read())
+            # response_text: JsonDict = await asyncio.get_event_loop().run_in_executor(None, self.decode_and_parse, await response.read())
         return response_text
 
 
