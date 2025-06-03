@@ -258,7 +258,7 @@ class YTMusicBase:
             response.raise_for_status()
             resp = await response.read()
             # response_text: JsonDict = await asyncio.get_event_loop().run_in_executor(None, orjson.loads, resp)
-            response_text = orjson.loads(resp)
+            response_text: JsonDict = orjson.loads(resp)
         return response_text
 
 
